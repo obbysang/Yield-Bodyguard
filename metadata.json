@@ -1,0 +1,5 @@
+{
+  "name": "YieldBodyguard",
+  "description": "Autonomous DeFi safety agent dashboard. Monitors yield pools, calculates risk scores using on-chain data, and provides AI-powered explainability and rebalancing recommendations.",
+  "requestFramePermissions": []
+}
