@@ -1,5 +1,7 @@
 # YieldBodyguard
-
+<p align="center">
+  <img src="/Yield-Bodyguard/assets/logo.png" alt="Logo" width="200"/>
+</p>
 Autonomous safety layer for DeFi yield. It continuously monitors pools, scores risk from on‑chain signals, and turns insights into actionable alerts and protective workflows. Non‑custodial by design, multi‑chain, and optimized for fast execution.
 
 ## Key Features
