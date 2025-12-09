@@ -312,11 +312,11 @@ export const Landing: React.FC<LandingProps> = ({ onConnect, onEnterDemo }) => {
                                      <span>Analyzing Degen.Farm...</span>
                                      <span className="text-red-400">CRITICAL (12)</span>
                                  </div>
-                                 <div className="p-4 mt-4 bg-gray-900 rounded-xl border border-gray-700 text-xs text-gray-500">
-                                     > Threat Detected: Rug Pull Pattern<br/>
-                                     > Initiating Auto-Exit Protocol...<br/>
-                                     > Success. Assets moved to Safety Vault.
-                                 </div>
+                                <div className="p-4 mt-4 bg-gray-900 rounded-xl border border-gray-700 text-xs text-gray-500">
+                                    &gt; Threat Detected: Rug Pull Pattern<br/>
+                                    &gt; Initiating Auto-Exit Protocol...<br/>
+                                    &gt; Success. Assets moved to Safety Vault.
+                                </div>
                              </div>
                         </div>
                     </div>

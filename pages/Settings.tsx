@@ -12,7 +12,8 @@ const itemVariants = {
   show: { opacity: 1, y: 0 }
 };
 
-export const Settings: React.FC = () => {
+interface Props { hasAtp?: boolean }
+export const Settings: React.FC<Props> = ({ hasAtp }) => {
   const [riskScore, setRiskScore] = useState(70);
   const [autoRebalance, setAutoRebalance] = useState(true);
 
@@ -47,21 +48,24 @@ export const Settings: React.FC = () => {
              <p className="text-xs text-gray-500 mt-2">Pools falling below this score will trigger alerts or auto-exit.</p>
            </div>
 
-           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-             <div className="flex items-center gap-3">
-               <div className="p-2 bg-white rounded-lg shadow-sm text-yellow-600"><Zap size={20} /></div>
-               <div>
-                 <h3 className="font-bold text-gray-900">Autonomous Rebalancing</h3>
-                 <p className="text-xs text-gray-500">Allow agent to exit positions instantly upon critical risk.</p>
-               </div>
-             </div>
-             <button 
-               onClick={() => setAutoRebalance(!autoRebalance)}
-               className={`w-12 h-6 rounded-full transition-colors relative ${autoRebalance ? 'bg-forest-600' : 'bg-gray-300'}`}
-             >
-               <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${autoRebalance ? 'left-7' : 'left-1'}`}></div>
-             </button>
-           </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm text-yellow-600"><Zap size={20} /></div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Autonomous Rebalancing</h3>
+                  <p className="text-xs text-gray-500">Allow agent to exit positions instantly upon critical risk.</p>
+                  {!hasAtp && (
+                    <p className="text-xs font-bold text-red-500">Requires ATP token</p>
+                  )}
+                </div>
+              </div>
+              <button 
+              onClick={() => hasAtp && setAutoRebalance(!autoRebalance)}
+              className={`w-12 h-6 rounded-full transition-colors relative ${autoRebalance && hasAtp ? 'bg-forest-600' : 'bg-gray-300'}`}
+              >
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${autoRebalance && hasAtp ? 'left-7' : 'left-1'}`}></div>
+              </button>
+            </div>
          </div>
       </motion.div>
 

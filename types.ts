@@ -12,6 +12,8 @@ export interface PoolData {
   auditScore: 0 | 1; // 1 = audited, 0 = no
   concentration: number; // top 10 holders share
   liquidityDepth: number; // slippage est for 10k
+  tokenAddress?: string;
+  spenderAddress?: string;
   
   // Computed State
   score?: number;

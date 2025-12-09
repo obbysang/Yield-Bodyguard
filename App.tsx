@@ -16,6 +16,8 @@ import { Settings } from './pages/Settings';
 import { Landing } from './pages/Landing';
 import { WalletConnectModal } from './components/WalletConnectModal';
 import { RebalanceModal } from './components/RebalanceModal';
+import { checkAtpStatus } from './services/atp';
+import { sendDiscord } from './services/notifications';
 
 const App: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -35,6 +37,7 @@ const App: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [originalPools, setOriginalPools] = useState<PoolData[]>([]); 
+  const [hasAtp, setHasAtp] = useState(false);
 
   // Initial Fetch
   useEffect(() => {
@@ -75,6 +78,7 @@ const App: React.FC = () => {
            }));
            
            setAlerts(prev => [...newAlerts, ...prev]);
+           newAlerts.forEach(a => sendDiscord(`${a.title}: ${a.message}`));
            return [...enrichedNew, ...currentPools]; 
         }
         return currentPools;
@@ -137,6 +141,7 @@ const App: React.FC = () => {
           timestamp: Date.now()
         };
         setAlerts([newAlert]);
+        sendDiscord(`${newAlert.title}: ${newAlert.message}`)
       }
     }
   };
@@ -168,6 +173,7 @@ const App: React.FC = () => {
             setWalletAddress(address);
             setShowConnectModal(false);
             setIsConnected(true);
+            checkAtpStatus(address).then(setHasAtp).catch(() => setHasAtp(false));
           }}
         />
       </>
@@ -216,7 +222,7 @@ const App: React.FC = () => {
                )}
                {activeTab === 'portfolio' && <Portfolio key="portfolio" />}
                {activeTab === 'activity' && <ActivityLog key="activity" />}
-               {activeTab === 'settings' && <Settings key="settings" />}
+              {activeTab === 'settings' && <Settings key="settings" hasAtp={hasAtp} />}
              </AnimatePresence>
            )}
         </main>
@@ -247,6 +253,7 @@ const App: React.FC = () => {
                type: 'info', 
                timestamp: Date.now() 
              }, ...prev]);
+             sendDiscord(`Rebalance Executed: Successfully moved assets to ${targetRebalancePool.name}`)
            }}
          />
       )}

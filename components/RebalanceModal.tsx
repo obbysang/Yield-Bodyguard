@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import { PoolData } from '../types';
+import { useWriteContract, useWaitForTransactionReceipt, useAccount, useChainId } from 'wagmi';
+import { mainnet, arbitrum, polygon } from 'viem/chains';
+import type { Address } from 'viem';
+import { REBALANCE_SPENDER_ADDRESS } from '../services/config';
 
 interface RebalanceModalProps {
   sourcePool: PoolData;
@@ -12,12 +16,42 @@ interface RebalanceModalProps {
 
 export const RebalanceModal: React.FC<RebalanceModalProps> = ({ sourcePool, targetPool, onClose, onConfirm }) => {
   const [step, setStep] = useState<'review' | 'sign' | 'success'>('review');
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined)
+  const { writeContractAsync } = useWriteContract()
+  const { isSuccess } = useWaitForTransactionReceipt({ hash: txHash })
+  const { address } = useAccount()
+  const chainId = useChainId()
+  const chain = chainId === 1 ? mainnet : chainId === 42161 ? arbitrum : chainId === 137 ? polygon : mainnet
 
-  const handleSign = () => {
+  const handleSign = async () => {
     setStep('sign');
-    setTimeout(() => {
-      setStep('success');
-    }, 2000);
+    const erc20 = [{
+      type: 'function',
+      name: 'approve',
+      inputs: [
+        { name: 'spender', type: 'address' },
+        { name: 'amount', type: 'uint256' }
+      ],
+      outputs: [{ type: 'bool' }],
+      stateMutability: 'nonpayable'
+    }] as const
+    try {
+      const tokenAddress: Address = (sourcePool.tokenAddress || '0x0000000000000000000000000000000000000000') as Address
+      const spender: Address = (sourcePool.spenderAddress || REBALANCE_SPENDER_ADDRESS) as Address
+      const amount = 1000000n
+      const hash = await writeContractAsync({
+        address: tokenAddress,
+        abi: erc20,
+        functionName: 'approve',
+        args: [spender, amount],
+        account: address as Address,
+        chain
+      })
+      setTxHash(hash)
+      setStep('success')
+    } catch {
+      setStep('review')
+    }
   };
 
   return (

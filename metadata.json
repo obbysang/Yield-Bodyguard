@@ -1,5 +1,11 @@
 {
   "name": "YieldBodyguard",
   "description": "Autonomous DeFi safety agent dashboard. Monitors yield pools, calculates risk scores using on-chain data, and provides AI-powered explainability and rebalancing recommendations.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "atp": {
+    "tokenAddress": "0x0000000000000000000000000000000000000000",
+    "chain": "mainnet",
+    "gatedFeatures": ["autoRebalance"],
+    "backend": "http://localhost:8787"
+  }
 }

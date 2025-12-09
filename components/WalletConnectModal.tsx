@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
+import { useConnect } from 'wagmi';
 
 interface WalletConnectModalProps {
   isOpen: boolean;
@@ -18,40 +19,20 @@ declare global {
 export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, onClose, onConnect }) => {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { connectors, connectAsync } = useConnect()
 
   const handleConnect = async () => {
     setConnecting(true);
     setError(null);
-
-    // Check if MetaMask is installed
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        
-        if (accounts && accounts.length > 0) {
-          // Small artificial delay for better UX feel during transition
-          setTimeout(() => {
-             setConnecting(false);
-             onConnect(accounts[0]);
-          }, 800);
-        } else {
-            setError("No accounts found. Please unlock your wallet.");
-            setConnecting(false);
-        }
-      } catch (err: any) {
-        setConnecting(false);
-        if (err.code === 4001) {
-          // EIP-1193 userRejectedRequest error
-          setError("Connection rejected by user.");
-        } else {
-          console.error(err);
-          setError("Failed to connect wallet. Please try again.");
-        }
-      }
-    } else {
-      setConnecting(false);
-      setError("MetaMask is not installed.");
+    try {
+      const injected = connectors.find(c => c.id === 'io.metamask' || c.name.toLowerCase().includes('injected')) || connectors[0]
+      const res = await connectAsync({ connector: injected })
+      setConnecting(false)
+      onConnect((res as any).accounts?.[0] || '')
+    } catch (e: any) {
+      setConnecting(false)
+      if (e?.name === 'UserRejectedRequestError') setError('Connection rejected by user.')
+      else setError('Failed to connect wallet. Please try again.')
     }
   };
 

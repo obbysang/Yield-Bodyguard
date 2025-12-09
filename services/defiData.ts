@@ -45,19 +45,21 @@ const FALLBACK_POOLS: PoolData[] = [
 
 export async function fetchRealTimePools(limit: number = 30): Promise<PoolData[]> {
   try {
+    const r = await fetch(`http://localhost:8787/pools?limit=${limit}`)
+    if (r.ok) {
+      const data = await r.json()
+      return data.map((p: any) => ({ ...p, score: 0 }))
+    }
+  } catch {}
+  try {
     const response = await fetch('https://yields.llama.fi/pools');
     if (!response.ok) throw new Error('Network response was not ok');
-    
     const data = await response.json();
     const pools: DefiLlamaPool[] = data.data;
-
-    // Filter for high TVL and interesting pools to ensure the dashboard looks good
-    // We want a mix of safe and slightly risky ones for the demo
     const relevantPools = pools
-      .filter(p => p.tvlUsd > 5000000 && p.apy > 0 && p.apy < 500) // Filter junk
-      .sort((a, b) => b.tvlUsd - a.tvlUsd) // Sort by TVL
-      .slice(0, limit); // Take top N
-
+      .filter(p => p.tvlUsd > 5000000 && p.apy > 0 && p.apy < 500)
+      .sort((a, b) => b.tvlUsd - a.tvlUsd)
+      .slice(0, limit);
     return relevantPools.map(p => enrichPoolData(p));
   } catch (error) {
     console.error("Failed to fetch live DeFi data:", error);
